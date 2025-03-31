@@ -1,6 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"time"
+)
 
 func main() {
 	// for keeping things easy to read and type-safe
@@ -86,23 +89,46 @@ func main() {
 		"███",
 	}
 
+	colon := placeholder{
+		"   ",
+		" ░ ",
+		"   ",
+		" ░ ",
+		"   ",
+	}
+
 	digits := [...]placeholder{
 		zero, one, two, three, four, five, six, seven, eight, nine,
 	}
 
-	// for _, digit := range digits {
-	// 	for _, line := range digit {
-	// 		fmt.Println(line)
-	// 	}
-	// 	fmt.Println()
-	// }
+	for {
+		fmt.Print("\033[H\033[2J") // Moves cursor to the top left and clears screen
+		now := time.Now()
+		hour, min, sec := now.Hour(), now.Minute(), now.Second()
 
-	// Ensure the loop runs 5 times
-	for line := range digits[0] {
-		// Print a line for each placeholder in digits
-		for digit := range digits {
-			fmt.Print(digits[digit][line], "  ")
+		// fmt.Printf("hour: %d, min: %d, sec: %d\n", hour, min, sec)
+
+		// [8][5]string
+		clock := [...]placeholder{
+			// extract the digits: 17 becomes, 1 and 7 respectively
+			digits[hour/10], digits[hour%10],
+			colon,
+			digits[min/10], digits[min%10],
+			colon,
+			digits[sec/10], digits[sec%10],
 		}
-		fmt.Println()
+
+		// Ensure the loop runs 5 times
+		for line := range clock[0] {
+			for index, digit := range clock {
+				next := clock[index][line]
+				if digit == colon && sec%2 == 0 {
+					next = "   "
+				}
+				fmt.Print(next, "  ")
+			}
+			fmt.Println()
+		}
+		time.Sleep(time.Second)
 	}
 }
